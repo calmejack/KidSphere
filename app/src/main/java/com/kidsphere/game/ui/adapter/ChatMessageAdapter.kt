@@ -23,10 +23,10 @@ class ChatMessageAdapter : ListAdapter<ChatMessage, ChatMessageAdapter.VH>(DIFF)
         holder.binding.tvMessage.text = msg.content
         if (msg.role == MessageRole.USER) {
             holder.binding.tvMessage.gravity = Gravity.END
-            holder.binding.tvMessage.setBackgroundResource(R.color.colorUserBubble)
+            holder.binding.tvMessage.setBackgroundResource(R.drawable.bg_chat_user)
         } else {
             holder.binding.tvMessage.gravity = Gravity.START
-            holder.binding.tvMessage.setBackgroundResource(R.color.colorNpcBubble)
+            holder.binding.tvMessage.setBackgroundResource(R.drawable.bg_chat_bubble)
         }
     }
 

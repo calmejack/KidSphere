@@ -100,4 +100,46 @@ class GameRepositoryTest {
         val playerStars = 5
         assertTrue(playerStars >= requiredStars)
     }
+
+    @Test
+    fun `completing quest increments completion count`() {
+        val quest = Quest(id = "q1", npcId = "n1", worldId = "w1",
+            title = "Test", description = "Desc", completionCount = 0)
+        val updated = quest.copy(status = QuestStatus.COMPLETED, completionCount = quest.completionCount + 1)
+        assertEquals(QuestStatus.COMPLETED, updated.status)
+        assertEquals(1, updated.completionCount)
+    }
+
+    @Test
+    fun `player stars update correctly after quest completion`() {
+        val player = Player(totalStars = 3)
+        val questStars = 2
+        val updated = player.copy(totalStars = player.totalStars + questStars)
+        assertEquals(5, updated.totalStars)
+    }
+
+    @Test
+    fun `world locked when player has insufficient stars`() {
+        val world = World(id = "world_ocean", name = "Deep Ocean",
+            description = "", theme = "ocean", isUnlocked = false, requiredStars = 5)
+        val playerStars = 3
+        assertFalse(playerStars >= world.requiredStars)
+    }
+
+    @Test
+    fun `world should unlock when player has enough stars`() {
+        val world = World(id = "world_ocean", name = "Deep Ocean",
+            description = "", theme = "ocean", isUnlocked = false, requiredStars = 5)
+        val playerStars = 5
+        assertTrue(playerStars >= world.requiredStars)
+    }
+
+    @Test
+    fun `completed quest ids appended correctly`() {
+        val player = Player(completedQuestIds = "q1")
+        val newId = "q2"
+        val updated = player.copy(completedQuestIds = "${player.completedQuestIds},$newId")
+        assertTrue(updated.completedQuestIds.contains(newId))
+        assertTrue(updated.completedQuestIds.contains("q1"))
+    }
 }

@@ -1,15 +1,32 @@
 package com.kidsphere.game.api
 
 import android.content.Context
+import android.content.SharedPreferences
 import androidx.core.content.edit
+import androidx.security.crypto.EncryptedSharedPreferences
+import androidx.security.crypto.MasterKey
 
 /**
- * Manages API keys in EncryptedSharedPreferences (or regular SharedPreferences
- * as a fallback). Keys should be provided by the app operator through the
- * Settings screen and never hard-coded or committed to source control.
+ * Manages API keys using [EncryptedSharedPreferences] backed by Android Keystore.
+ * Keys should be provided by the app operator through the Settings screen and
+ * never hard-coded or committed to source control.
  */
 class ApiKeyManager(context: Context) {
-    private val prefs = context.getSharedPreferences("api_keys", Context.MODE_PRIVATE)
+    private val prefs: SharedPreferences = try {
+        val masterKey = MasterKey.Builder(context)
+            .setKeyScheme(MasterKey.KeyScheme.AES256_GCM)
+            .build()
+        EncryptedSharedPreferences.create(
+            context,
+            "api_keys_enc",
+            masterKey,
+            EncryptedSharedPreferences.PrefKeyEncryptionScheme.AES256_SIV,
+            EncryptedSharedPreferences.PrefValueEncryptionScheme.AES256_GCM
+        )
+    } catch (e: Exception) {
+        // Fallback to regular prefs if encryption is not available (e.g. emulator quirks)
+        context.getSharedPreferences("api_keys", Context.MODE_PRIVATE)
+    }
 
     companion object {
         const val KEY_AI_API_KEY     = "ai_api_key"

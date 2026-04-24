@@ -12,6 +12,7 @@ class TtsRepository(
     private val keyManager: ApiKeyManager
 ) {
     private var mediaPlayer: MediaPlayer? = null
+    private val ttsFileName = "tts_current.mp3"   // reuse a single file to avoid accumulation
 
     /**
      * Synthesize text to speech using Alibaba Cloud NLS TTS and play it.
@@ -33,7 +34,7 @@ class TtsRepository(
             )
             if (response.isSuccessful) {
                 val bytes = response.body()?.bytes() ?: return Result.failure(Exception("Empty TTS response"))
-                val tmpFile = File(context.cacheDir, "tts_${System.currentTimeMillis()}.mp3")
+                val tmpFile = File(context.cacheDir, ttsFileName)
                 FileOutputStream(tmpFile).use { it.write(bytes) }
                 playAudio(tmpFile)
                 Result.success(Unit)

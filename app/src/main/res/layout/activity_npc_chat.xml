@@ -74,7 +74,8 @@
             android:hint="Type your message..."
             android:imeOptions="actionSend"
             android:inputType="textMultiLine"
-            android:maxLines="3"/>
+            android:maxLines="3"
+            android:scrollbars="vertical"/>
 
         <Button
             android:id="@+id/btnSend"

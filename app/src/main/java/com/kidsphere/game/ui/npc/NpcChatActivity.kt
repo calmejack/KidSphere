@@ -19,6 +19,7 @@ class NpcChatActivity : AppCompatActivity() {
     private lateinit var binding: ActivityNpcChatBinding
     private val viewModel: NpcViewModel by viewModels()
     private lateinit var adapter: ChatMessageAdapter
+    private var greetingSent = false
 
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
@@ -46,7 +47,9 @@ class NpcChatActivity : AppCompatActivity() {
 
         viewModel.npc.observe(this) { npc ->
             npc ?: return@observe
-            if (viewModel.messages.value.isNullOrEmpty()) {
+            // Only send the greeting on the very first load (no existing messages yet)
+            if (!greetingSent && viewModel.messages.value.isNullOrEmpty()) {
+                greetingSent = true
                 viewModel.sendMessage(npc.greetingText.ifBlank { "Hello!" })
             }
         }

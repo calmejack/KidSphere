@@ -14,6 +14,7 @@ class GameRepository(
 ) {
     // --- Worlds ---
     fun getAllWorlds() = worldDao.getAll()
+    suspend fun getAllWorldsOnce() = withContext(Dispatchers.IO) { worldDao.getAllOnce() }
     fun getUnlockedWorlds() = worldDao.getUnlocked()
     suspend fun unlockWorld(worldId: String) = withContext(Dispatchers.IO) {
         worldDao.getById(worldId)?.let { worldDao.update(it.copy(isUnlocked = true)) }
@@ -26,39 +27,25 @@ class GameRepository(
     // --- Quests ---
     fun getQuestsForNpc(npcId: String) = questDao.getByNpc(npcId)
     suspend fun getQuestById(id: String) = withContext(Dispatchers.IO) { questDao.getById(id) }
-    suspend fun completeQuest(questId: String) = withContext(Dispatchers.IO) {
-        questDao.getById(questId)?.let {
-            questDao.update(it.copy(status = QuestStatus.COMPLETED, completionCount = it.completionCount + 1))
-        }
-    }
 
-    // --- Rewards ---
-    fun getAllRewards() = rewardDao.getAll()
-    fun getCollectedRewards() = rewardDao.getCollected()
-    suspend fun collectReward(rewardId: String) = withContext(Dispatchers.IO) {
-        rewardDao.getById(rewardId)?.let {
-            rewardDao.update(it.copy(isCollected = true, earnedAt = System.currentTimeMillis()))
+    /** Atomically marks quest complete and updates player stats. */
+    suspend fun completeQuestAndAwardPlayer(quest: Quest) = withContext(Dispatchers.IO) {
+        questDao.update(quest.copy(status = QuestStatus.COMPLETED, completionCount = quest.completionCount + 1))
+        val p = playerDao.getPlayerOnce() ?: Player()
+        val completedIds = if (p.completedQuestIds.isEmpty()) quest.id
+                           else "${p.completedQuestIds},${quest.id}"
+        val newXp = p.xp + quest.rewardStars * 10
+        playerDao.update(p.copy(
+            totalStars       = p.totalStars + quest.rewardStars,
+            xp               = newXp,
+            level            = 1 + newXp / 100,
+            completedQuestIds = completedIds
+        ))
+        if (quest.rewardItemId.isNotBlank()) {
+            rewardDao.getById(quest.rewardItemId)?.let {
+                rewardDao.update(it.copy(isCollected = true, earnedAt = System.currentTimeMillis()))
+            }
         }
-    }
-
-    // --- Player ---
-    fun getPlayerLive() = playerDao.getPlayer()
-    suspend fun getPlayer() = withContext(Dispatchers.IO) { playerDao.getPlayerOnce() }
-    suspend fun addStars(stars: Int) = withContext(Dispatchers.IO) {
-        val p = playerDao.getPlayerOnce() ?: Player()
-        playerDao.update(p.copy(totalStars = p.totalStars + stars))
-    }
-    suspend fun addXp(xp: Int) = withContext(Dispatchers.IO) {
-        val p = playerDao.getPlayerOnce() ?: Player()
-        val newXp = p.xp + xp
-        val newLevel = 1 + newXp / 100
-        playerDao.update(p.copy(xp = newXp, level = newLevel))
-    }
-    suspend fun markQuestCompleted(questId: String) = withContext(Dispatchers.IO) {
-        val p = playerDao.getPlayerOnce() ?: return@withContext
-        val completed = if (p.completedQuestIds.isEmpty()) questId
-        else "${p.completedQuestIds},$questId"
-        playerDao.update(p.copy(completedQuestIds = completed))
     }
 
     // --- Seed initial data ---

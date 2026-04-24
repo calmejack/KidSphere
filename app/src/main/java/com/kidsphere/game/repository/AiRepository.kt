@@ -43,7 +43,7 @@ class AiRepository(
             )
             if (response.isSuccessful) {
                 val reply = response.body()?.choices?.firstOrNull()?.message?.content
-                    ?: "..."
+                    ?: "Sorry, I didn't catch that. Can you try asking again?"
                 chatMessageDao.insert(
                     ChatMessage(sessionId = sessionId, role = MessageRole.ASSISTANT, content = reply)
                 )

@@ -34,17 +34,13 @@ class GameViewModel(application: Application) : AndroidViewModel(application) {
         }
     }
 
+    fun getNpcsForWorld(worldId: String) = gameRepo.getNpcsForWorld(worldId)
+
     fun getQuestsForNpc(npcId: String) = gameRepo.getQuestsForNpc(npcId)
 
     fun onQuestCompleted(quest: Quest) {
         viewModelScope.launch {
-            gameRepo.completeQuest(quest.id)
-            gameRepo.markQuestCompleted(quest.id)
-            gameRepo.addStars(quest.rewardStars)
-            gameRepo.addXp(quest.rewardStars * 10)
-            if (quest.rewardItemId.isNotBlank()) {
-                gameRepo.collectReward(quest.rewardItemId)
-            }
+            gameRepo.completeQuestAndAwardPlayer(quest)
             checkWorldUnlocks()
             _toastMessage.postValue("🌟 Quest complete! +${quest.rewardStars} stars")
         }
@@ -52,15 +48,11 @@ class GameViewModel(application: Application) : AndroidViewModel(application) {
 
     private suspend fun checkWorldUnlocks() {
         val p = gameRepo.getPlayer() ?: return
-        val worlds = listOf(
-            Triple("world_ocean",   5,  "r_world_2"),
-            Triple("world_space",   15, "r_world_3"),
-            Triple("world_ancient", 30, "r_world_4")
-        )
-        for ((worldId, required, rewardId) in worlds) {
-            if (p.totalStars >= required) {
-                gameRepo.unlockWorld(worldId)
-                gameRepo.collectReward(rewardId)
+        // World unlock thresholds are stored on the World entity (requiredStars field)
+        val allWorlds = gameRepo.getAllWorldsOnce()
+        for (world in allWorlds) {
+            if (!world.isUnlocked && p.totalStars >= world.requiredStars && world.requiredStars > 0) {
+                gameRepo.unlockWorld(world.id)
             }
         }
     }
