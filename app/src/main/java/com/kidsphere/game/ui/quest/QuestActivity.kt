@@ -10,8 +10,7 @@ import com.kidsphere.game.data.model.Quest
 import com.kidsphere.game.data.model.QuestStatus
 import com.kidsphere.game.databinding.ActivityQuestBinding
 import com.kidsphere.game.viewmodel.GameViewModel
-import kotlinx.coroutines.CoroutineScope
-import kotlinx.coroutines.Dispatchers
+import androidx.lifecycle.lifecycleScope
 import kotlinx.coroutines.launch
 
 class QuestActivity : AppCompatActivity() {
@@ -26,7 +25,7 @@ class QuestActivity : AppCompatActivity() {
 
         val questId = intent.getStringExtra(EXTRA_QUEST_ID) ?: return
 
-        CoroutineScope(Dispatchers.Main).launch {
+        lifecycleScope.launch {
             val db = AppDatabase.getInstance(this@QuestActivity)
             val q = db.questDao().getById(questId) ?: return@launch
             quest = q

@@ -6,6 +6,7 @@ import android.view.ViewGroup
 import androidx.recyclerview.widget.DiffUtil
 import androidx.recyclerview.widget.ListAdapter
 import androidx.recyclerview.widget.RecyclerView
+import com.kidsphere.game.R
 import com.kidsphere.game.data.model.ChatMessage
 import com.kidsphere.game.data.model.MessageRole
 import com.kidsphere.game.databinding.ItemChatMessageBinding
@@ -22,10 +23,10 @@ class ChatMessageAdapter : ListAdapter<ChatMessage, ChatMessageAdapter.VH>(DIFF)
         holder.binding.tvMessage.text = msg.content
         if (msg.role == MessageRole.USER) {
             holder.binding.tvMessage.gravity = Gravity.END
-            holder.binding.tvMessage.setBackgroundResource(android.R.color.holo_blue_light)
+            holder.binding.tvMessage.setBackgroundResource(R.color.colorUserBubble)
         } else {
             holder.binding.tvMessage.gravity = Gravity.START
-            holder.binding.tvMessage.setBackgroundResource(android.R.color.holo_green_light)
+            holder.binding.tvMessage.setBackgroundResource(R.color.colorNpcBubble)
         }
     }
 

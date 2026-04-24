@@ -25,22 +25,12 @@ class GameViewModel(application: Application) : AndroidViewModel(application) {
     private val _currentWorldId = MutableLiveData<String>("world_forest")
     val currentWorldId: LiveData<String> = _currentWorldId
 
-    private val _npcsInWorld = MutableLiveData<List<Npc>>()
-    val npcsInWorld: LiveData<List<Npc>> = _npcsInWorld
-
     private val _toastMessage = MutableLiveData<String?>()
     val toastMessage: LiveData<String?> = _toastMessage
 
     init {
         viewModelScope.launch {
             gameRepo.seedIfEmpty()
-        }
-    }
-
-    fun loadNpcsForWorld(worldId: String) {
-        _currentWorldId.value = worldId
-        gameRepo.getNpcsForWorld(worldId).observeForever {
-            _npcsInWorld.value = it
         }
     }
 

@@ -49,12 +49,12 @@ class TtsRepository(
         mediaPlayer?.release()
         mediaPlayer = MediaPlayer().apply {
             setDataSource(file.absolutePath)
-            prepare()
-            start()
+            setOnPreparedListener { it.start() }
             setOnCompletionListener {
                 it.release()
                 file.delete()
             }
+            prepareAsync()
         }
     }
 

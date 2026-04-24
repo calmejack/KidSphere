@@ -12,8 +12,7 @@ import com.kidsphere.game.databinding.ActivityNpcChatBinding
 import com.kidsphere.game.ui.adapter.ChatMessageAdapter
 import com.kidsphere.game.ui.quest.QuestListActivity
 import com.kidsphere.game.viewmodel.NpcViewModel
-import kotlinx.coroutines.CoroutineScope
-import kotlinx.coroutines.Dispatchers
+import androidx.lifecycle.lifecycleScope
 import kotlinx.coroutines.launch
 
 class NpcChatActivity : AppCompatActivity() {
@@ -28,16 +27,12 @@ class NpcChatActivity : AppCompatActivity() {
 
         val npcId = intent.getStringExtra(EXTRA_NPC_ID) ?: return
 
-        CoroutineScope(Dispatchers.Main).launch {
+        lifecycleScope.launch {
             val db = AppDatabase.getInstance(this@NpcChatActivity)
             val npc = db.npcDao().getById(npcId) ?: return@launch
             viewModel.setNpc(npc)
             binding.tvNpcName.text = npc.name
             binding.tvNpcSubject.text = npc.subject.replaceFirstChar { it.uppercase() }
-
-            if (viewModel.messages.value.isNullOrEmpty()) {
-                viewModel.sendMessage(npc.greetingText.ifBlank { "Hello!" })
-            }
         }
 
         adapter = ChatMessageAdapter()
@@ -47,6 +42,13 @@ class NpcChatActivity : AppCompatActivity() {
         viewModel.messages.observe(this) { messages ->
             adapter.submitList(messages)
             if (messages.isNotEmpty()) binding.rvMessages.smoothScrollToPosition(messages.size - 1)
+        }
+
+        viewModel.npc.observe(this) { npc ->
+            npc ?: return@observe
+            if (viewModel.messages.value.isNullOrEmpty()) {
+                viewModel.sendMessage(npc.greetingText.ifBlank { "Hello!" })
+            }
         }
 
         viewModel.isLoading.observe(this) { loading ->
