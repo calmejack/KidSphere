@@ -1,0 +1,16 @@
+<?xml version="1.0" encoding="utf-8"?>
+<resources>
+    <string name="app_name">KidSphere</string>
+    <string name="play">Play</string>
+    <string name="settings">Settings</string>
+    <string name="rewards">Rewards</string>
+    <string name="send">Send</string>
+    <string name="back">Back</string>
+    <string name="save">Save</string>
+    <string name="complete_quest">Complete Quest</string>
+    <string name="ai_base_url">AI Base URL</string>
+    <string name="ai_api_key">AI API Key</string>
+    <string name="ai_model">AI Model</string>
+    <string name="aliyun_app_key">Aliyun App Key</string>
+    <string name="aliyun_token">Aliyun TTS Token</string>
+</resources>
