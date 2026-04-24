@@ -1,0 +1,11 @@
+<?xml version="1.0" encoding="utf-8"?>
+<resources>
+    <string name="app_name">KidSphere</string>
+    <string name="welcome_title">🌟 KidSphere</string>
+    <string name="welcome_subtitle">AI Adventure for Young Minds</string>
+    <string name="loading_games">Loading adventures…</string>
+    <string name="start_adventure">Start Adventure 🚀</string>
+    <string name="type_message">Ask me anything…</string>
+    <string name="send">Send</string>
+    <string name="speak_responses">Read aloud</string>
+</resources>
