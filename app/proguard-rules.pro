@@ -1,0 +1,2 @@
+-keep class com.kidsphere.game.data.model.** { *; }
+-keep class com.kidsphere.game.api.model.** { *; }
